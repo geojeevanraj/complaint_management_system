@@ -1,14 +1,16 @@
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
+
+from config.database import db_config
 from dao.complaint_dao import ComplaintDAO
 from dto.complaint_dto import ComplaintDTO
-from config.database import db_config
+
 
 class ComplaintDAOImpl(ComplaintDAO):
     """Concrete implementation of ComplaintDAO"""
-    
+
     def __init__(self):
         self.db = db_config
-    
+
     def create(self, entity_data: Dict[str, Any]) -> bool:
         """Create a new complaint"""
         try:
@@ -17,17 +19,20 @@ class ComplaintDAOImpl(ComplaintDAO):
                 INSERT INTO complaints (user_id, category, description, status) 
                 VALUES (?, ?, ?, ?)
             """
-            self.db.execute_non_query(query, (
-                complaint_dto.user_id, 
-                complaint_dto.category, 
-                complaint_dto.description, 
-                complaint_dto.status
-            ))
+            self.db.execute_non_query(
+                query,
+                (
+                    complaint_dto.user_id,
+                    complaint_dto.category,
+                    complaint_dto.description,
+                    complaint_dto.status,
+                ),
+            )
             return True
         except Exception as e:
             print(f"Error creating complaint: {e}")
             return False
-    
+
     def find_by_id(self, entity_id: int) -> Optional[Dict[str, Any]]:
         """Find complaint by ID with user information"""
         try:
@@ -39,7 +44,7 @@ class ComplaintDAOImpl(ComplaintDAO):
                 WHERE c.id = ?
             """
             results = self.db.execute_query(query, (entity_id,))
-            
+
             if results:
                 row = results[0]
                 complaint_dto = ComplaintDTO(
@@ -50,14 +55,14 @@ class ComplaintDAOImpl(ComplaintDAO):
                     created_at=row[4],
                     user_id=row[5],
                     user_name=row[6],
-                    assigned_to=row[7]
+                    assigned_to=row[7],
                 )
                 return complaint_dto.to_dict()
             return None
         except Exception as e:
             print(f"Error finding complaint by ID: {e}")
             return None
-    
+
     def find_all(self) -> List[Dict[str, Any]]:
         """Find all complaints with user information"""
         try:
@@ -69,7 +74,7 @@ class ComplaintDAOImpl(ComplaintDAO):
                 ORDER BY c.created_at DESC
             """
             results = self.db.execute_query(query)
-            
+
             complaints = []
             for row in results:
                 complaint_dto = ComplaintDTO(
@@ -80,14 +85,14 @@ class ComplaintDAOImpl(ComplaintDAO):
                     created_at=row[4],
                     user_id=row[5],
                     user_name=row[6],
-                    assigned_to=row[7]
+                    assigned_to=row[7],
                 )
                 complaints.append(complaint_dto.to_dict())
             return complaints
         except Exception as e:
             print(f"Error finding all complaints: {e}")
             return []
-    
+
     def update(self, entity_id: int, entity_data: Dict[str, Any]) -> bool:
         """Update a complaint"""
         try:
@@ -97,18 +102,21 @@ class ComplaintDAOImpl(ComplaintDAO):
                 SET category = ?, description = ?, status = ?, assigned_to = ?
                 WHERE id = ?
             """
-            self.db.execute_non_query(query, (
-                complaint_dto.category,
-                complaint_dto.description,
-                complaint_dto.status,
-                complaint_dto.assigned_to,
-                entity_id
-            ))
+            self.db.execute_non_query(
+                query,
+                (
+                    complaint_dto.category,
+                    complaint_dto.description,
+                    complaint_dto.status,
+                    complaint_dto.assigned_to,
+                    entity_id,
+                ),
+            )
             return True
         except Exception as e:
             print(f"Error updating complaint: {e}")
             return False
-    
+
     def delete(self, entity_id: int) -> bool:
         """Delete a complaint"""
         try:
@@ -118,7 +126,7 @@ class ComplaintDAOImpl(ComplaintDAO):
         except Exception as e:
             print(f"Error deleting complaint: {e}")
             return False
-    
+
     def find_by_user_id(self, user_id: int) -> List[dict]:
         """Find complaints by user ID"""
         try:
@@ -129,7 +137,7 @@ class ComplaintDAOImpl(ComplaintDAO):
                 ORDER BY created_at DESC
             """
             results = self.db.execute_query(query, (user_id,))
-            
+
             complaints = []
             for row in results:
                 complaint_dto = ComplaintDTO(
@@ -139,14 +147,14 @@ class ComplaintDAOImpl(ComplaintDAO):
                     description=row[2],
                     status=row[3],
                     created_at=row[4],
-                    assigned_to=row[5]
+                    assigned_to=row[5],
                 )
                 complaints.append(complaint_dto.to_dict())
             return complaints
         except Exception as e:
             print(f"Error finding user complaints: {e}")
             return []
-    
+
     def find_by_status(self, status: str) -> List[dict]:
         """Find complaints by status"""
         try:
@@ -159,7 +167,7 @@ class ComplaintDAOImpl(ComplaintDAO):
                 ORDER BY c.created_at DESC
             """
             results = self.db.execute_query(query, (status,))
-            
+
             complaints = []
             for row in results:
                 complaint_dto = ComplaintDTO(
@@ -170,14 +178,14 @@ class ComplaintDAOImpl(ComplaintDAO):
                     created_at=row[4],
                     user_id=row[5],
                     user_name=row[6],
-                    assigned_to=row[7]
+                    assigned_to=row[7],
                 )
                 complaints.append(complaint_dto.to_dict())
             return complaints
         except Exception as e:
             print(f"Error finding complaints by status: {e}")
             return []
-    
+
     def find_by_category(self, category: str) -> List[dict]:
         """Find complaints by category"""
         try:
@@ -190,7 +198,7 @@ class ComplaintDAOImpl(ComplaintDAO):
                 ORDER BY c.created_at DESC
             """
             results = self.db.execute_query(query, (category,))
-            
+
             complaints = []
             for row in results:
                 complaint_dto = ComplaintDTO(
@@ -201,14 +209,14 @@ class ComplaintDAOImpl(ComplaintDAO):
                     created_at=row[4],
                     user_id=row[5],
                     user_name=row[6],
-                    assigned_to=row[7]
+                    assigned_to=row[7],
                 )
                 complaints.append(complaint_dto.to_dict())
             return complaints
         except Exception as e:
             print(f"Error finding complaints by category: {e}")
             return []
-    
+
     def assign_complaint(self, complaint_id: int, staff_id: int) -> bool:
         """Assign complaint to staff member"""
         try:
@@ -218,7 +226,7 @@ class ComplaintDAOImpl(ComplaintDAO):
         except Exception as e:
             print(f"Error assigning complaint: {e}")
             return False
-    
+
     def update_status(self, complaint_id: int, status: str) -> bool:
         """Update complaint status"""
         try:
@@ -228,7 +236,7 @@ class ComplaintDAOImpl(ComplaintDAO):
         except Exception as e:
             print(f"Error updating complaint status: {e}")
             return False
-    
+
     def find_by_user_and_category(self, user_id: int, category: str) -> List[dict]:
         """Find complaints by user ID and category"""
         try:
@@ -239,7 +247,7 @@ class ComplaintDAOImpl(ComplaintDAO):
                 ORDER BY created_at DESC
             """
             results = self.db.execute_query(query, (user_id, category))
-            
+
             complaints = []
             for row in results:
                 complaint_dto = ComplaintDTO(
@@ -249,7 +257,7 @@ class ComplaintDAOImpl(ComplaintDAO):
                     description=row[2],
                     status=row[3],
                     created_at=row[4],
-                    assigned_to=row[5]
+                    assigned_to=row[5],
                 )
                 complaints.append(complaint_dto.to_dict())
             return complaints
