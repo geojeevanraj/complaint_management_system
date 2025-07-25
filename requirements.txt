@@ -1,2 +1,8 @@
+# Production dependencies
 pyodbc==4.0.39
 python-dotenv==1.0.0
+
+# Development dependencies
+pytest==7.4.3
+flake8==6.1.0
+black==23.11.0

@@ -1,0 +1,4 @@
+[![CI Pipeline](https://github.com/geojeevanraj/complaint_management_system/actions/workflows/ci.yml/badge.svg)](https://github.com/geojeevanraj/complaint_management_system/actions/workflows/ci.yml)
+[![Code Quality](https://github.com/geojeevanraj/complaint_management_system/actions/workflows/code-quality.yml/badge.svg)](https://github.com/geojeevanraj/complaint_management_system/actions/workflows/code-quality.yml)
+[![Deploy](https://github.com/geojeevanraj/complaint_management_system/actions/workflows/deploy.yml/badge.svg)](https://github.com/geojeevanraj/complaint_management_system/actions/workflows/deploy.yml)
+[![Security](https://github.com/geojeevanraj/complaint_management_system/actions/workflows/dependency-update.yml/badge.svg)](https://github.com/geojeevanraj/complaint_management_system/actions/workflows/dependency-update.yml)

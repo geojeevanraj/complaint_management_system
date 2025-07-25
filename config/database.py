@@ -1,58 +1,59 @@
-import pyodbc
 import os
 from typing import Optional
+
+import pyodbc
 from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class DatabaseConfig:
     """Database configuration and connection management"""
-    
+
     def __init__(self):
-        self.server = os.getenv('DB_SERVER', 'localhost')
-        self.database = os.getenv('DB_NAME', 'complaint_system')
-        self.username = os.getenv('DB_USER', 'root')
-        self.password = os.getenv('DB_PASSWORD', '')
-        self.port = os.getenv('DB_PORT', '3306')
-        
- 
+        self.server = os.getenv("DB_SERVER", "localhost")
+        self.database = os.getenv("DB_NAME", "complaint_system")
+        self.username = os.getenv("DB_USER", "root")
+        self.password = os.getenv("DB_PASSWORD", "")
+        self.port = os.getenv("DB_PORT", "3306")
+
         self.possible_drivers = [
-            os.getenv('DB_DRIVER', '{MySQL ODBC 9.3 Unicode Driver}'),
-            '{MySQL ODBC 9.3 Unicode Driver}',
-            '{MySQL ODBC 9.3 ANSI Driver}',
-            '{MySQL ODBC 8.0 Unicode Driver}',
-            '{MySQL ODBC 8.0 ANSI Driver}',
-            '{MySQL ODBC 8.0 Driver}',
-            '{MySQL ODBC 5.3 Unicode Driver}',
-            '{MySQL ODBC 5.3 ANSI Driver}',
-            '{MySQL ODBC 5.1 Driver}',
-            'MySQL ODBC 9.3 Unicode Driver',
-            'MySQL ODBC 9.3 ANSI Driver',
-            'MySQL ODBC 8.0 Driver',
-            'MySQL ODBC 8.0 Unicode Driver',
-            'MySQL ODBC 8.0 ANSI Driver'
+            os.getenv("DB_DRIVER", "{MySQL ODBC 9.3 Unicode Driver}"),
+            "{MySQL ODBC 9.3 Unicode Driver}",
+            "{MySQL ODBC 9.3 ANSI Driver}",
+            "{MySQL ODBC 8.0 Unicode Driver}",
+            "{MySQL ODBC 8.0 ANSI Driver}",
+            "{MySQL ODBC 8.0 Driver}",
+            "{MySQL ODBC 5.3 Unicode Driver}",
+            "{MySQL ODBC 5.3 ANSI Driver}",
+            "{MySQL ODBC 5.1 Driver}",
+            "MySQL ODBC 9.3 Unicode Driver",
+            "MySQL ODBC 9.3 ANSI Driver",
+            "MySQL ODBC 8.0 Driver",
+            "MySQL ODBC 8.0 Unicode Driver",
+            "MySQL ODBC 8.0 ANSI Driver",
         ]
-        
+
         self.driver = None
         self.connection_string = None
         self._connection = None
-        
+
         self._find_available_driver()
-    
+
     def _find_available_driver(self):
         """Find an available MySQL ODBC driver"""
         available_drivers = pyodbc.drivers()
-        
+
         print("Available ODBC drivers:")
         for driver in available_drivers:
             print(f"  - {driver}")
-        
+
         for driver in self.possible_drivers:
-            driver_name = driver.strip('{}')
+            driver_name = driver.strip("{}")
             if driver in available_drivers or driver_name in available_drivers:
                 self.driver = driver
                 break
-        
+
         if not self.driver:
             print("\nERROR: No MySQL ODBC driver found!")
             print("Please install MySQL Connector/ODBC from:")
@@ -61,9 +62,8 @@ class DatabaseConfig:
             print("1. Install MySQL Workbench (includes ODBC driver)")
             print("2. Use the Windows MySQL Installer")
             raise Exception("MySQL ODBC driver not found")
-        
+
         print(f"\nUsing MySQL ODBC driver: {self.driver}")
-        
 
         self.connection_string = (
             f"DRIVER={self.driver};"
@@ -74,16 +74,18 @@ class DatabaseConfig:
             f"PWD={self.password};"
             f"charset=utf8mb4;"
         )
-        
-        print(f"Connection string: {self.connection_string.replace(self.password, '***')}")
-    
+
+        print(
+            f"Connection string: {self.connection_string.replace(self.password, '***')}"
+        )
+
     def get_connection(self):
         """Get database connection"""
         try:
             if self._connection is None or not self._connection:
                 if not self.connection_string:
                     raise Exception("Database connection string not configured")
-                
+
                 print("Attempting to connect to MySQL database...")
                 self._connection = pyodbc.connect(self.connection_string)
                 self._connection.autocommit = False
@@ -102,25 +104,25 @@ class DatabaseConfig:
         except Exception as e:
             print(f"Connection configuration error: {e}")
             raise
-    
+
     def close_connection(self):
         """Close database connection"""
         if self._connection:
             self._connection.close()
             self._connection = None
-    
+
     def execute_query(self, query: str, params: tuple = None):
         """Execute a SELECT query and return results"""
         cursor = None
         try:
             conn = self.get_connection()
             cursor = conn.cursor()
-            
+
             if params:
                 cursor.execute(query, params)
             else:
                 cursor.execute(query)
-            
+
             results = cursor.fetchall()
             return results
         except pyodbc.Error as e:
@@ -129,7 +131,7 @@ class DatabaseConfig:
         finally:
             if cursor:
                 cursor.close()
-    
+
     def execute_non_query(self, query: str, params: tuple = None):
         """Execute INSERT, UPDATE, DELETE queries"""
         conn = None
@@ -137,12 +139,12 @@ class DatabaseConfig:
         try:
             conn = self.get_connection()
             cursor = conn.cursor()
-            
+
             if params:
                 cursor.execute(query, params)
             else:
                 cursor.execute(query)
-            
+
             conn.commit()
             affected_rows = cursor.rowcount
             return affected_rows
@@ -154,7 +156,7 @@ class DatabaseConfig:
         finally:
             if cursor:
                 cursor.close()
-    
+
     def create_tables(self):
         """Create database tables if they don't exist"""
         tables = [
@@ -192,9 +194,9 @@ class DatabaseConfig:
                 FOREIGN KEY (complaint_id) REFERENCES complaints(id) ON DELETE CASCADE,
                 FOREIGN KEY (staff_id) REFERENCES users(id) ON DELETE CASCADE
             )
-            """
+            """,
         ]
-        
+
         try:
             for table_sql in tables:
                 self.execute_non_query(table_sql)
