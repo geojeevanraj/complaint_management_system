@@ -3,21 +3,19 @@ import os
 from typing import Optional
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
 class DatabaseConfig:
     """Database configuration and connection management"""
     
     def __init__(self):
-        # MySQL ODBC connection parameters
         self.server = os.getenv('DB_SERVER', 'localhost')
         self.database = os.getenv('DB_NAME', 'complaint_system')
         self.username = os.getenv('DB_USER', 'root')
         self.password = os.getenv('DB_PASSWORD', '')
         self.port = os.getenv('DB_PORT', '3306')
         
-        # Try different MySQL ODBC driver names (prioritizing newer versions)
+ 
         self.possible_drivers = [
             os.getenv('DB_DRIVER', '{MySQL ODBC 9.3 Unicode Driver}'),
             '{MySQL ODBC 9.3 Unicode Driver}',
@@ -39,7 +37,6 @@ class DatabaseConfig:
         self.connection_string = None
         self._connection = None
         
-        # Find available driver and build connection string
         self._find_available_driver()
     
     def _find_available_driver(self):
@@ -50,7 +47,6 @@ class DatabaseConfig:
         for driver in available_drivers:
             print(f"  - {driver}")
         
-        # Try to find a MySQL driver
         for driver in self.possible_drivers:
             driver_name = driver.strip('{}')
             if driver in available_drivers or driver_name in available_drivers:
@@ -68,7 +64,7 @@ class DatabaseConfig:
         
         print(f"\nUsing MySQL ODBC driver: {self.driver}")
         
-        # Build connection string
+
         self.connection_string = (
             f"DRIVER={self.driver};"
             f"SERVER={self.server};"
@@ -206,5 +202,5 @@ class DatabaseConfig:
         except Exception as e:
             print(f"Error creating tables: {e}")
 
-# Singleton instance
+
 db_config = DatabaseConfig()

@@ -1,13 +1,13 @@
-from models.user import User
-from models.complaint import Complaint
-from models.comment import Comment
+from services.user_service import UserService
+from services.complaint_service import ComplaintService
+from services.comment_service import CommentService
 from views.views import UserView, ComplaintView
 
 class UserController:
     """Controller for user-related operations"""
     
     def __init__(self):
-        self.user_model = User()
+        self.user_service = UserService()
         self.user_view = UserView()
     
     def register(self):
@@ -23,12 +23,12 @@ class UserController:
                 return False
             
             # Check if user already exists
-            existing_user = self.user_model.find_by_email(email)
+            existing_user = self.user_service.find_user_by_email(email)
             if existing_user:
                 self.user_view.display_error("User with this email already exists")
                 return False
             
-            if self.user_model.create(name, email, password, role):
+            if self.user_service.create_user(name, email, password, role):
                 self.user_view.display_success("User registered successfully")
                 return True
             else:
@@ -48,7 +48,7 @@ class UserController:
                 self.user_view.display_error("Email and password are required")
                 return None
             
-            user = self.user_model.authenticate(email, password)
+            user = self.user_service.authenticate_user(email, password)
             if user:
                 self.user_view.display_success(f"Welcome {user['name']} ({user['role']})")
                 return user
@@ -69,9 +69,15 @@ class UserController:
                 self.user_view.display_error("Both passwords are required")
                 return False
             
-            if self.user_model.update_password(user_id, old_password, new_password):
-                self.user_view.display_success("Password updated successfully")
-                return True
+            # First verify old password by getting user and checking authentication
+            user = self.user_service.find_user_by_id(user_id)
+            if user and self.user_service.authenticate_user(user['email'], old_password):
+                if self.user_service.update_password(user_id, new_password):
+                    self.user_view.display_success("Password updated successfully")
+                    return True
+                else:
+                    self.user_view.display_error("Failed to update password")
+                    return False
             else:
                 self.user_view.display_error("Old password is incorrect")
                 return False
@@ -82,7 +88,7 @@ class UserController:
     def list_staff(self):
         """List all staff members"""
         try:
-            staff_members = self.user_model.get_staff_members()
+            staff_members = self.user_service.find_users_by_role('staff')
             self.user_view.display_staff_list(staff_members)
             return staff_members
         except Exception as e:
@@ -93,9 +99,9 @@ class ComplaintController:
     """Controller for complaint-related operations"""
     
     def __init__(self):
-        self.complaint_model = Complaint()
-        self.comment_model = Comment()
-        self.user_model = User()
+        self.complaint_service = ComplaintService()
+        self.comment_service = CommentService()
+        self.user_service = UserService()
         self.complaint_view = ComplaintView()
     
     def register_complaint(self, user_id: int):
@@ -107,7 +113,7 @@ class ComplaintController:
                 self.complaint_view.display_error("Category and description are required")
                 return False
             
-            if self.complaint_model.create(user_id, complaint_data['category'], complaint_data['description']):
+            if self.complaint_service.create_complaint(user_id, complaint_data['category'], complaint_data['description']):
                 self.complaint_view.display_success("Complaint registered successfully")
                 return True
             else:
@@ -120,7 +126,7 @@ class ComplaintController:
     def view_user_complaints(self, user_id: int):
         """View complaints for a specific user"""
         try:
-            complaints = self.complaint_model.find_by_user_id(user_id)
+            complaints = self.complaint_service.find_complaints_by_user_id(user_id)
             self.complaint_view.display_complaint_list(complaints)
             return complaints
         except Exception as e:
@@ -130,7 +136,7 @@ class ComplaintController:
     def view_all_complaints(self):
         """View all complaints (admin function)"""
         try:
-            complaints = self.complaint_model.find_all()
+            complaints = self.complaint_service.find_all_complaints()
             self.complaint_view.display_complaint_list(complaints, show_user=True)
             return complaints
         except Exception as e:
@@ -140,8 +146,8 @@ class ComplaintController:
     def view_complaint_details(self, complaint_id: int):
         """View detailed complaint information"""
         try:
-            complaint = self.complaint_model.find_by_id(complaint_id)
-            comments = self.comment_model.find_by_complaint_id(complaint_id)
+            complaint = self.complaint_service.find_complaint_by_id(complaint_id)
+            comments = self.comment_service.find_comments_by_complaint_id(complaint_id)
             self.complaint_view.display_complaint_details(complaint, comments)
             return complaint
         except Exception as e:
@@ -157,7 +163,7 @@ class ComplaintController:
                 self.complaint_view.display_error("Invalid status")
                 return False
             
-            if self.complaint_model.update_status(complaint_id, status):
+            if self.complaint_service.update_complaint_status(complaint_id, status):
                 self.complaint_view.display_success("Complaint status updated")
                 return True
             else:
@@ -171,13 +177,13 @@ class ComplaintController:
         """Assign complaint to staff member"""
         try:
             staff_email = self.complaint_view.get_user_input("Enter staff email to assign")
-            staff = self.user_model.find_by_email(staff_email)
+            staff = self.user_service.find_user_by_email(staff_email)
             
             if not staff or staff['role'] != 'staff':
                 self.complaint_view.display_error("Staff member not found")
                 return False
             
-            if self.complaint_model.assign_to_staff(complaint_id, staff['id']):
+            if self.complaint_service.assign_complaint(complaint_id, staff['id']):
                 self.complaint_view.display_success("Complaint assigned to staff")
                 return True
             else:
@@ -190,7 +196,7 @@ class ComplaintController:
     def view_assigned_complaints(self, staff_id: int):
         """View complaints assigned to staff member"""
         try:
-            complaints = self.complaint_model.find_assigned_complaints(staff_id)
+            complaints = self.complaint_service.find_assigned_complaints(staff_id)
             self.complaint_view.display_complaint_list(complaints, show_user=True)
             return complaints
         except Exception as e:
@@ -206,7 +212,7 @@ class ComplaintController:
                 self.complaint_view.display_error("Invalid status")
                 return False
             
-            if self.complaint_model.update_assigned_complaint_status(staff_id, complaint_id, status):
+            if self.complaint_service.update_complaint_status(complaint_id, status):
                 self.complaint_view.display_success("Complaint status updated")
                 return True
             else:
@@ -219,7 +225,7 @@ class ComplaintController:
     def delete_complaint(self, complaint_id: int, user_id: int = None, is_admin: bool = False):
         """Delete a complaint"""
         try:
-            if self.complaint_model.delete(complaint_id, user_id, is_admin):
+            if self.complaint_service.delete_complaint(complaint_id):
                 self.complaint_view.display_success("Complaint deleted successfully")
                 return True
             else:
@@ -233,7 +239,10 @@ class ComplaintController:
         """Search complaints by category"""
         try:
             category = self.complaint_view.get_search_category()
-            complaints = self.complaint_model.search_by_category(category, user_id, is_admin)
+            if is_admin:
+                complaints = self.complaint_service.find_complaints_by_category(category)
+            else:
+                complaints = self.complaint_service.find_complaints_by_user_and_category(user_id, category)
             self.complaint_view.display_complaint_list(complaints, show_user=is_admin)
             return complaints
         except Exception as e:
@@ -244,7 +253,7 @@ class ComplaintController:
         """View complaints by status"""
         try:
             status = self.complaint_view.get_filter_status()
-            complaints = self.complaint_model.find_by_status(status)
+            complaints = self.complaint_service.find_complaints_by_status(status)
             self.complaint_view.display_complaint_list(complaints, show_user=True)
             return complaints
         except Exception as e:
@@ -254,7 +263,10 @@ class ComplaintController:
     def export_complaints_to_csv(self, user_id: int = None, is_admin: bool = False, filename: str = "complaints_export.csv"):
         """Export complaints to CSV"""
         try:
-            complaints = self.complaint_model.export_to_list(user_id, is_admin)
+            if is_admin:
+                complaints = self.complaint_service.find_all_complaints()
+            else:
+                complaints = self.complaint_service.find_complaints_by_user_id(user_id)
             if self.complaint_view.export_complaints_to_csv(complaints, filename):
                 return True
             return False
@@ -265,7 +277,7 @@ class ComplaintController:
     def view_complaint_statistics(self):
         """View complaint statistics"""
         try:
-            stats = self.complaint_model.get_statistics()
+            stats = self.complaint_service.get_statistics()
             self.complaint_view.display_complaint_statistics(stats)
             return stats
         except Exception as e:
@@ -281,7 +293,7 @@ class ComplaintController:
                 self.complaint_view.display_error("Comment cannot be empty")
                 return False
             
-            if self.comment_model.create(complaint_id, staff_id, comment):
+            if self.comment_service.create_comment(complaint_id, staff_id, comment):
                 self.complaint_view.display_success("Comment added to complaint")
                 return True
             else:

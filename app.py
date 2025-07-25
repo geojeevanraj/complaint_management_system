@@ -1,8 +1,3 @@
-"""
-Complaint Management System - MVC Architecture with MySQL ODBC
-Main Application Entry Point
-"""
-
 from config.database import db_config
 from controllers.controllers import UserController, ComplaintController
 from views.views import UserView, ComplaintView
