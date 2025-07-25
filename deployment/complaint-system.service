@@ -1,0 +1,26 @@
+# Systemd service file for Complaint Management System
+# Place this file at: /etc/systemd/system/complaint-system.service
+
+[Unit]
+Description=Complaint Management System
+After=network.target mysql.service
+Requires=mysql.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/complaint_system
+Environment=PATH=/var/www/complaint_system/venv/bin
+Environment=PYTHONPATH=/var/www/complaint_system
+Environment=DB_HOST=localhost
+Environment=DB_NAME=complaint_system
+Environment=DB_USER=complaint_user
+Environment=DB_PASSWORD=your_password
+ExecStart=/var/www/complaint_system/venv/bin/python app.py
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
