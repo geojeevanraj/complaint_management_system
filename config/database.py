@@ -1,10 +1,22 @@
 import os
 from typing import Optional
 
-import pyodbc
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Check if we should skip database operations entirely (for CI/testing)
+SKIP_DB_CONNECTION = os.getenv("SKIP_DB_CONNECTION", "false").lower() == "true"
+CI_ENVIRONMENT = os.getenv("CI_ENVIRONMENT", "false").lower() == "true"
+
+# Try to import pyodbc, but handle gracefully if not available
+try:
+    if not SKIP_DB_CONNECTION and not CI_ENVIRONMENT:
+        import pyodbc
+    else:
+        pyodbc = None
+except ImportError:
+    pyodbc = None
 
 
 class DatabaseConfig:
@@ -46,11 +58,19 @@ class DatabaseConfig:
         self._connection = None
 
         # Skip driver detection in test environments if requested
+        if pyodbc is None or SKIP_DB_CONNECTION or CI_ENVIRONMENT:
+            print("ℹ️ Database operations skipped (CI environment or pyodbc not available)")
+            return
+            
         if os.getenv("SKIP_DB_DRIVER_CHECK", "false").lower() != "true":
             self._find_available_driver()
 
     def _find_available_driver(self):
         """Find an available MySQL ODBC driver"""
+        if pyodbc is None:
+            print("ℹ️ pyodbc not available, skipping driver detection")
+            return
+            
         available_drivers = pyodbc.drivers()
 
         print("Available ODBC drivers:")
@@ -90,6 +110,10 @@ class DatabaseConfig:
 
     def get_connection(self):
         """Get database connection"""
+        if pyodbc is None or SKIP_DB_CONNECTION or CI_ENVIRONMENT:
+            print("ℹ️ Database connection skipped (CI environment or pyodbc not available)")
+            return None
+            
         try:
             if self._connection is None or not self._connection:
                 if not self.connection_string:
