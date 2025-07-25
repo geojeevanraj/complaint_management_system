@@ -23,7 +23,7 @@ class UserDAOImpl(UserDAO):
             hashed_password = self._hash_password(user_dto.password)
 
             query = """
-                INSERT INTO users (name, email, password, role) 
+                INSERT INTO users (name, email, password, role)
                 VALUES (?, ?, ?, ?)
             """
             self.db.execute_non_query(

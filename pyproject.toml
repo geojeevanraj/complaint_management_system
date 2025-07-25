@@ -1,20 +1,22 @@
 [tool.black]
 line-length = 88
-target-version = ['py312']
+target-version = ['py38']
 include = '\.pyi?$'
 extend-exclude = '''
+# A regex preceded by a single or double slash
 /(
+    # directories
     \.eggs
   | \.git
   | \.hg
   | \.mypy_cache
   | \.tox
   | \.venv
+  | venv
   | _build
   | buck-out
   | build
   | dist
-  | __pycache__
 )/
 '''
 
@@ -22,56 +24,56 @@ extend-exclude = '''
 profile = "black"
 multi_line_output = 3
 line_length = 88
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
+known_first_party = ["models", "views", "controllers", "services", "dao", "dto", "config"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--verbose",
+    "--tb=short"
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow tests",
+]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pyodbc",
+    "pyodbc.*"
+]
 ignore_missing_imports = true
-
-[tool.pylint.messages_control]
-disable = "C0330, C0326"
-
-[tool.pylint.format]
-max-line-length = "88"
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q --strict-markers --strict-config"
-testpaths = [
-    "tests",
-]
-python_files = [
-    "test_*.py",
-    "*_test.py",
-]
-python_classes = [
-    "Test*",
-]
-python_functions = [
-    "test_*",
-]
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests",
-]
 
 [tool.coverage.run]
 source = ["."]
 omit = [
     "*/tests/*",
-    "*/venv/*",
+    "*/test_*",
     "*/.venv/*",
-    "*/env/*",
-    "*/.env/*",
+    "*/venv/*",
     "setup.py",
-    "*/migrations/*",
+    "*/migrations/*"
 ]
 
 [tool.coverage.report]
@@ -83,53 +85,8 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
     "if 0:",
-    "if __name__ == .__main__.:",
-    "class .*\\bProtocol\\):",
-    "@(abc\\.)?abstractmethod",
+    "if __name__ == .__main__.:"
 ]
-
-[build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "complaint-management-system"
-version = "1.0.0"
-description = "A complaint management system built with DAO pattern"
-authors = [
-    {name = "Your Name", email = "your.email@example.com"},
-]
-readme = "README.md"
-requires-python = ">=3.11"
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-]
-dependencies = [
-    "pyodbc>=4.0.0",
-    "python-dotenv>=1.0.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "black>=23.0.0",
-    "isort>=5.12.0",
-    "flake8>=6.0.0",
-    "mypy>=1.5.0",
-    "pylint>=2.17.0",
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "pytest-mock>=3.11.0",
-    "bandit>=1.7.0",
-    "safety>=2.3.0",
-]
-
-[project.urls]
-"Homepage" = "https://github.com/geojeevanraj/complaint_management_system"
-"Bug Reports" = "https://github.com/geojeevanraj/complaint_management_system/issues"
-"Source" = "https://github.com/geojeevanraj/complaint_management_system"
+# Fail if coverage is below 80%
+fail_under = 80
+show_missing = true

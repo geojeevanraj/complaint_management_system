@@ -27,7 +27,7 @@ class User(BaseModel):
         try:
             hashed_password = self.hash_password(password)
             query = """
-                INSERT INTO users (name, email, password, role) 
+                INSERT INTO users (name, email, password, role)
                 VALUES (?, ?, ?, ?)
             """
             self.db.execute_non_query(query, (name, email, hashed_password, role))

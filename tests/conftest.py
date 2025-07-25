@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Set up environment variables for testing
 os.environ["SKIP_DB_CONNECTION"] = "true"
-os.environ["CI_ENVIRONMENT"] = "true" 
+os.environ["CI_ENVIRONMENT"] = "true"
 os.environ["SKIP_DB_DRIVER_CHECK"] = "true"
 
 

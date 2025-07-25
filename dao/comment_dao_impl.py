@@ -27,7 +27,7 @@ class CommentDAOImpl(CommentDAO):
 
             # Add the comment
             query = """
-                INSERT INTO complaint_comments (complaint_id, staff_id, comment) 
+                INSERT INTO complaint_comments (complaint_id, staff_id, comment)
                 VALUES (?, ?, ?)
             """
             self.db.execute_non_query(

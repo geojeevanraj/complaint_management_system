@@ -16,7 +16,7 @@ class Complaint:
         """Create a new complaint"""
         try:
             query = """
-                INSERT INTO complaints (user_id, category, description, status) 
+                INSERT INTO complaints (user_id, category, description, status)
                 VALUES (?, ?, ?, 'Pending')
             """
             self.db.execute_non_query(query, (user_id, category, description))
@@ -29,9 +29,9 @@ class Complaint:
         """Get all complaints for a specific user"""
         try:
             query = """
-                SELECT id, category, description, status, created_at, assigned_to 
-                FROM complaints 
-                WHERE user_id = ? 
+                SELECT id, category, description, status, created_at, assigned_to
+                FROM complaints
+                WHERE user_id = ?
                 ORDER BY created_at DESC
             """
             results = self.db.execute_query(query, (user_id,))
@@ -56,7 +56,7 @@ class Complaint:
         """Get all complaints with user information"""
         try:
             query = """
-                SELECT c.id, c.category, c.description, c.status, c.created_at, 
+                SELECT c.id, c.category, c.description, c.status, c.created_at,
                        c.user_id, u.name as user_name, c.assigned_to
                 FROM complaints c
                 JOIN users u ON c.user_id = u.id
@@ -86,7 +86,7 @@ class Complaint:
         """Get complaint by ID with user information"""
         try:
             query = """
-                SELECT c.id, c.category, c.description, c.status, c.created_at, 
+                SELECT c.id, c.category, c.description, c.status, c.created_at,
                        c.user_id, u.name as user_name, c.assigned_to
                 FROM complaints c
                 JOIN users u ON c.user_id = u.id
@@ -174,8 +174,8 @@ class Complaint:
         """Update status of complaint assigned to specific staff"""
         try:
             query = """
-                UPDATE complaints 
-                SET status = ? 
+                UPDATE complaints
+                SET status = ?
                 WHERE id = ? AND assigned_to = ?
             """
             affected_rows = self.db.execute_non_query(

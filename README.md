@@ -251,6 +251,65 @@ If you're migrating from the original MongoDB version (`main.py`), you'll need t
 
 ## Development
 
+### CI/CD Pipeline
+
+This project includes a comprehensive GitHub Actions CI/CD pipeline:
+
+#### 🔄 Continuous Integration
+- **Automated Testing**: Tests run on Python 3.8, 3.9, 3.10, 3.11
+- **Code Quality**: Linting with flake8, formatting with black, import sorting with isort
+- **Security Scanning**: Security analysis with bandit and safety
+- **Coverage Reporting**: Code coverage analysis with pytest-cov
+
+#### 🚀 Continuous Deployment
+- **Staging**: Auto-deploy from `main` branch
+- **Production**: Deploy from version tags (`v*`)
+- **Health Checks**: Automated post-deployment verification
+
+#### 📦 Dependency Management
+- **Weekly Updates**: Automatic dependency updates every Monday
+- **Security Audits**: Regular vulnerability scanning
+- **Pull Request Creation**: Automated PRs for dependency updates
+
+### Development Workflow
+
+1. **Local Development**:
+   ```bash
+   # Install dependencies
+   pip install -r requirements.txt
+
+   # Run all checks locally
+   python run_tests.py
+
+   # Or run individual checks
+   make format        # Format code
+   make lint         # Run linting
+   make test         # Run tests
+   make security     # Security checks
+   ```
+
+2. **Branch Strategy**:
+   - `main`: Production-ready code
+   - `develop`: Development branch
+   - `feature/*`: Feature branches
+   - `hotfix/*`: Hotfix branches
+
+3. **Quality Gates**:
+   - ✅ All tests pass
+   - ✅ Code coverage meets threshold
+   - ✅ No security vulnerabilities
+   - ✅ Code style compliance
+   - ✅ No linting errors
+
+### Pipeline Status
+
+Monitor the pipeline status through:
+- GitHub Actions tab
+- Status badges (coming soon)
+- Email notifications for failures
+
+For detailed CI/CD documentation, see [`docs/CI_CD_PIPELINE.md`](docs/CI_CD_PIPELINE.md).
+
 ### Adding New Features
 
 1. **Models**: Add new database operations in the appropriate model file

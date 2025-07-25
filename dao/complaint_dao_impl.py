@@ -16,7 +16,7 @@ class ComplaintDAOImpl(ComplaintDAO):
         try:
             complaint_dto = ComplaintDTO.from_dict(entity_data)
             query = """
-                INSERT INTO complaints (user_id, category, description, status) 
+                INSERT INTO complaints (user_id, category, description, status)
                 VALUES (?, ?, ?, ?)
             """
             self.db.execute_non_query(
@@ -37,7 +37,7 @@ class ComplaintDAOImpl(ComplaintDAO):
         """Find complaint by ID with user information"""
         try:
             query = """
-                SELECT c.id, c.category, c.description, c.status, c.created_at, 
+                SELECT c.id, c.category, c.description, c.status, c.created_at,
                        c.user_id, u.name as user_name, c.assigned_to
                 FROM complaints c
                 JOIN users u ON c.user_id = u.id
@@ -67,7 +67,7 @@ class ComplaintDAOImpl(ComplaintDAO):
         """Find all complaints with user information"""
         try:
             query = """
-                SELECT c.id, c.category, c.description, c.status, c.created_at, 
+                SELECT c.id, c.category, c.description, c.status, c.created_at,
                        c.user_id, u.name as user_name, c.assigned_to
                 FROM complaints c
                 JOIN users u ON c.user_id = u.id
@@ -98,7 +98,7 @@ class ComplaintDAOImpl(ComplaintDAO):
         try:
             complaint_dto = ComplaintDTO.from_dict(entity_data)
             query = """
-                UPDATE complaints 
+                UPDATE complaints
                 SET category = ?, description = ?, status = ?, assigned_to = ?
                 WHERE id = ?
             """
@@ -131,9 +131,9 @@ class ComplaintDAOImpl(ComplaintDAO):
         """Find complaints by user ID"""
         try:
             query = """
-                SELECT id, category, description, status, created_at, assigned_to 
-                FROM complaints 
-                WHERE user_id = ? 
+                SELECT id, category, description, status, created_at, assigned_to
+                FROM complaints
+                WHERE user_id = ?
                 ORDER BY created_at DESC
             """
             results = self.db.execute_query(query, (user_id,))
@@ -159,7 +159,7 @@ class ComplaintDAOImpl(ComplaintDAO):
         """Find complaints by status"""
         try:
             query = """
-                SELECT c.id, c.category, c.description, c.status, c.created_at, 
+                SELECT c.id, c.category, c.description, c.status, c.created_at,
                        c.user_id, u.name as user_name, c.assigned_to
                 FROM complaints c
                 JOIN users u ON c.user_id = u.id
@@ -190,7 +190,7 @@ class ComplaintDAOImpl(ComplaintDAO):
         """Find complaints by category"""
         try:
             query = """
-                SELECT c.id, c.category, c.description, c.status, c.created_at, 
+                SELECT c.id, c.category, c.description, c.status, c.created_at,
                        c.user_id, u.name as user_name, c.assigned_to
                 FROM complaints c
                 JOIN users u ON c.user_id = u.id
@@ -241,8 +241,8 @@ class ComplaintDAOImpl(ComplaintDAO):
         """Find complaints by user ID and category"""
         try:
             query = """
-                SELECT id, category, description, status, created_at, assigned_to 
-                FROM complaints 
+                SELECT id, category, description, status, created_at, assigned_to
+                FROM complaints
                 WHERE user_id = ? AND category = ?
                 ORDER BY created_at DESC
             """

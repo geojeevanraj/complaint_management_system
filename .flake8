@@ -1,19 +1,21 @@
+# Flake8 configuration
 [flake8]
-max-line-length = 127
-max-complexity = 10
-exclude = 
+max-line-length = 88
+extend-ignore = E203, W503, E501
+exclude =
     .git,
     __pycache__,
     .venv,
     venv,
+    env,
     .env,
-    setup_*.py,
-    main_old.py,
-    create_demo_data.py,
-    query_users.py
-ignore = 
-    E203,
-    W503,
-    F401
-per-file-ignores = 
+    migrations,
+    *.egg-info
+
+# Error codes to check
+select = E,W,F,C
+
+per-file-ignores =
     __init__.py:F401
+    */migrations/*:E501
+    tests/*.py:E501
