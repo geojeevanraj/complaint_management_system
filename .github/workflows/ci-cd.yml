@@ -36,6 +36,9 @@ jobs:
           
     - name: Install unixODBC-dev
       run: sudo apt-get update && sudo apt-get install -y unixodbc-dev
+      
+    - name: Install MySQL ODBC Driver
+      run: sudo apt-get install -y libmyodbc
           
     - name: Install dependencies
       run: |
@@ -81,6 +84,9 @@ jobs:
         
     - name: Install unixODBC-dev
       run: sudo apt-get update && sudo apt-get install -y unixodbc-dev
+      
+    - name: Install MySQL ODBC Driver
+      run: sudo apt-get install -y libmyodbc
         
     - name: Install dependencies
       run: |
@@ -128,6 +134,9 @@ jobs:
         
     - name: Install unixODBC-dev
       run: sudo apt-get update && sudo apt-get install -y unixodbc-dev
+      
+    - name: Install MySQL ODBC Driver
+      run: sudo apt-get install -y libmyodbc
         
     - name: Install dependencies
       run: |
