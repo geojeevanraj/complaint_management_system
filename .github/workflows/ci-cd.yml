@@ -57,18 +57,20 @@ jobs:
         else
           echo "No tests directory found, skipping pytest"
           echo "Running basic import validation..."
-          python -c "
+          python -c '
+          import sys
           try:
               import app
-              print('✅ Basic import test passed')
+              print("✅ Basic import test passed")
           except ImportError as e:
-              print(f'❌ Import failed: {e}')
-              if 'pyodbc' in str(e) or 'No module named' in str(e):
-                  print('ℹ️ This may be due to missing database drivers (expected in CI)')
-                  print('✅ Treating as non-critical for CI environment')
+              print(f"❌ Import failed: {e}")
+              if "pyodbc" in str(e) or "No module named" in str(e):
+                  print("ℹ️ This may be due to missing database drivers (expected in CI)")
+                  print("✅ Treating as non-critical for CI environment")
               else:
-                  exit(1)
-          "
+                  sys.exit(1)
+          '
+        fi
 
   # Job 2: Build
   build:
