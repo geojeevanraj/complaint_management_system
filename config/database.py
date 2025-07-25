@@ -32,13 +32,22 @@ class DatabaseConfig:
             "MySQL ODBC 8.0 Driver",
             "MySQL ODBC 8.0 Unicode Driver",
             "MySQL ODBC 8.0 ANSI Driver",
+            # Common Linux/Ubuntu driver names
+            "MySQL",
+            "MariaDB",
+            "{MySQL}",
+            "{MariaDB}",
+            "MySQL ODBC Driver",
+            "libmyodbc",
         ]
 
         self.driver = None
         self.connection_string = None
         self._connection = None
 
-        self._find_available_driver()
+        # Skip driver detection in test environments if requested
+        if os.getenv("SKIP_DB_DRIVER_CHECK", "false").lower() != "true":
+            self._find_available_driver()
 
     def _find_available_driver(self):
         """Find an available MySQL ODBC driver"""
